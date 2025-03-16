@@ -49,5 +49,8 @@ urlpatterns = [
     
     # Vérification des badges
     path('verifier-badges/', views.verifier_badges, name='verifier_badges'),
+
+        path("mots-racines/", views.liste_mots_racines, name="mots_racines"),
+
             
         ]

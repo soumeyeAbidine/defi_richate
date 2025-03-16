@@ -10,6 +10,21 @@ from .models import Utilisateur, Mot, Definition, StatutValidation, Commentaire,
 
 
 
+
+
+
+#le mots 
+from django.shortcuts import render
+from .models import MotRacine
+
+def liste_mots_racines(request):
+    mots = MotRacine.objects.all()
+    return render(request, "dics/mots_racines.html", {"mots": mots})
+
+
+
+
+
 # Decorateurs pour les permissions
 def login_required(view_func):
     @wraps(view_func)

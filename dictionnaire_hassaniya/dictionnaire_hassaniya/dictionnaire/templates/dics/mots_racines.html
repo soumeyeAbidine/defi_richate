@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Challenge 1000 Mots Racines Hassaniya</title>
+    <style>
+        /* Styles globaux */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #0077b6, #0096c7);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Conteneur principal */
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            overflow-x: auto;
+        }
+
+        /* Tableau */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #0077b6;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) {
+            background: #f1f9ff;
+        }
+
+        tr:hover {
+            background: #caf0f8;
+            transition: 0.3s ease-in-out;
+        }
+
+        /* Message si aucun mot */
+        .empty-message {
+            font-size: 18px;
+            color: #777;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* Responsive pour petits écrans */
+        @media (max-width: 600px) {
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>📌 Challenge 1000 Mots Racines en Hassaniya</h2>
+    <div class="container">
+        <table>
+            <tr>
+                <th>Mot Racine</th>
+                <th>Traduction</th>
+            </tr>
+            {% for mot in mots %}
+                <tr>
+                    <td><strong>{{ mot.nom }}</strong></td>
+                    <td>{{ mot.traduction }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2" class="empty-message">Aucun mot trouvé.</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>

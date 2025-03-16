@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Formes grammaticales des mots</title>
+    <style>
+        /* Styles globaux */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #0077b6;
+        }
+
+        /* Conteneur principal */
+        .container {
+            width: 60%;
+            background: white;
+            margin: 20px auto;
+            padding: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        /* Liste des formes grammaticales */
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #e3f2fd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Sélecteur */
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+        }
+
+        /* Boutons */
+        form {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            border: none;
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button[name="action"][value="valider"] {
+            background: #28a745;
+            color: white;
+        }
+
+        button[name="action"][value="valider"]:hover {
+            background: #218838;
+        }
+
+        button[name="action"][value="rejeter"] {
+            background: #dc3545;
+            color: white;
+        }
+
+        button[name="action"][value="rejeter"]:hover {
+            background: #c82333;
+        }
+
+        /* Message si aucune forme */
+        .empty-message {
+            font-size: 18px;
+            color: #777;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Choisir un mot</h2>
+        <select id="motSelect" onchange="fetchFormes()">
+            <option value="">-- Sélectionnez un mot --</option>
+            {% for mot in mots %}
+                <option value="{{ mot.id }}">{{ mot.nom }}</option>
+            {% endfor %}
+        </select>
+
+        <h2>Formes grammaticales du mot : <strong id="motNom">---</strong></h2>
+        <ul id="formesList">
+            <li class="empty-message">Sélectionnez un mot pour voir ses formes grammaticales.</li>
+        </ul>
+    </div>
+
+    <script>
+        function fetchFormes() {
+            const motId = document.getElementById("motSelect").value;
+            const motNom = document.getElementById("motSelect").options[document.getElementById("motSelect").selectedIndex].text;
+            document.getElementById("motNom").innerText = motNom;
+
+            if (motId) {
+                fetch(`/api/formes/${motId}/`)  // Appel API pour récupérer les formes
+                    .then(response => response.json())
+                    .then(data => {
+                        const formesList = document.getElementById("formesList");
+                        formesList.innerHTML = ""; // Vider la liste
+
+                        if (data.formes.length > 0) {
+                            data.formes.forEach(forme => {
+                                const li = document.createElement("li");
+                                li.innerHTML = `
+                                    <span class="forme-info">
+                                        ${forme.texte} (${forme.source}) - 
+                                        Catégorie : <strong>${forme.categorie}</strong> - 
+                                        Statut : <strong>${forme.statut}</strong>
+                                    </span>
+                                    ${forme.statut === "En attente" ? `
+                                        <form method="post" action="/formes/${motId}/modifier/">
+                                            <input type="hidden" name="forme_id" value="${forme.id}">
+                                            <button type="submit" name="action" value="valider">✔ Valider</button>
+                                            <button type="submit" name="action" value="rejeter">✖ Rejeter</button>
+                                        </form>
+                                    ` : ""}
+                                `;
+                                formesList.appendChild(li);
+                            });
+                        } else {
+                            formesList.innerHTML = `<li class="empty-message">Aucune forme grammaticale générée.</li>`;
+                        }
+                    })
+                    .catch(error => console.error("Erreur lors du chargement des formes :", error));
+            } else {
+                document.getElementById("formesList").innerHTML = `<li class="empty-message">Sélectionnez un mot pour voir ses formes grammaticales.</li>`;
+            }
+        }
+    </script>
+</body>
+</html>

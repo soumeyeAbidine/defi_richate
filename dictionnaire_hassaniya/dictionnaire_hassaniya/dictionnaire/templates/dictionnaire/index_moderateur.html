@@ -1,0 +1,327 @@
+{% extends 'dictionnaire/base_moderateur.html' %}
+
+{% block title %}Tableau de bord modérateur - Dictionnaire Hassaniya{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0 text-gray-800">Tableau de bord modérateur</h1>
+        <ol class="breadcrumb bg-transparent p-0 mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'tableau_bord_moderateur' %}">Modération</a></li>
+            <li class="breadcrumb-item active">Tableau de bord</li>
+        </ol>
+    </div>
+
+    <!-- Statistiques de modération -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-stat-card bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label text-muted mb-1">En attente</p>
+                            <h3 class="stat-number mb-0">{{ total_attente }}</h3>
+                        </div>
+                        <div class="stat-icon text-primary">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-primary bg-opacity-10 py-2">
+                    <a href="{% url 'filtrer_mots' %}?statut=attente" class="small text-primary fw-medium">
+                        Voir les mots en attente <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-stat-card bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label text-muted mb-1">En révision</p>
+                            <h3 class="stat-number mb-0">{{ total_revision }}</h3>
+                        </div>
+                        <div class="stat-icon text-warning">
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-warning bg-opacity-10 py-2">
+                    <a href="{% url 'filtrer_mots' %}?statut=revision" class="small text-warning fw-medium">
+                        Voir les mots en révision <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-stat-card bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label text-muted mb-1">Validés</p>
+                            <h3 class="stat-number mb-0">{{ total_valides }}</h3>
+                        </div>
+                        <div class="stat-icon text-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-success bg-opacity-10 py-2">
+                    <a href="{% url 'filtrer_mots' %}?statut=valide" class="small text-success fw-medium">
+                        Voir les mots validés <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-stat-card bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label text-muted mb-1">Rejetés</p>
+                            <h3 class="stat-number mb-0">{{ total_rejetes }}</h3>
+                        </div>
+                        <div class="stat-icon text-danger">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-danger bg-opacity-10 py-2">
+                    <a href="{% url 'filtrer_mots' %}?statut=rejete" class="small text-danger fw-medium">
+                        Voir les mots rejetés <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Mots en attente de modération -->
+        <div class="col-lg-6 mb-4">
+            <div class="dashboard-recent-card">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-hourglass-split me-2"></i>Mots en attente</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if mots_en_attente %}
+                        {% for mot in mots_en_attente %}
+                        <div class="p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ mot.nom }}</h5>
+                                    <p class="mb-0 text-muted small">
+                                        {% for definition in mot.definitions.all %}
+                                            {% if forloop.first %}
+                                                {{ definition.texte|truncatechars:80 }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                    <div class="mt-2">
+                                        <span class="badge bg-secondary">En attente</span>
+                                        <small class="text-muted ms-2">
+                                            <i class="bi bi-person me-1"></i>{{ mot.cree_par.nom_complet }}
+                                        </small>
+                                        <small class="text-muted ms-2">
+                                            <i class="bi bi-calendar3 me-1"></i>{{ mot.date_creation|date:"d/m/Y" }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <a href="{% url 'examiner_mot' mot.id %}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-search me-1"></i>Examiner
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-4 text-center">
+                            <i class="bi bi-check-circle text-muted" style="font-size: 3rem;"></i>
+                            <p class="mt-3 mb-0">Aucun mot en attente pour le moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if mots_en_attente %}
+                <div class="card-footer bg-light text-center py-3">
+                    <a href="{% url 'filtrer_mots' %}?statut=attente" class="btn btn-outline-primary">
+                        <i class="bi bi-list me-1"></i>Voir tous les mots en attente
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Mots en révision -->
+        <div class="col-lg-6 mb-4">
+            <div class="dashboard-recent-card">
+                <div class="card-header bg-warning py-3">
+                    <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Mots en révision</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if mots_en_revision %}
+                        {% for mot in mots_en_revision %}
+                        <div class="p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ mot.nom }}</h5>
+                                    <p class="mb-0 text-muted small">
+                                        {% for definition in mot.definitions.all %}
+                                            {% if forloop.first %}
+                                                {{ definition.texte|truncatechars:80 }}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                    <div class="mt-2">
+                                        <span class="badge bg-warning">En révision</span>
+                                        <small class="text-muted ms-2">
+                                            <i class="bi bi-person me-1"></i>{{ mot.cree_par.nom_complet }}
+                                        </small>
+                                        <small class="text-muted ms-2">
+                                            <i class="bi bi-calendar3 me-1"></i>{{ mot.date_creation|date:"d/m/Y" }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <a href="{% url 'examiner_mot' mot.id %}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil me-1"></i>Continuer
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-4 text-center">
+                            <i class="bi bi-check-circle text-muted" style="font-size: 3rem;"></i>
+                            <p class="mt-3 mb-0">Aucun mot en révision pour le moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if mots_en_revision %}
+                <div class="card-footer bg-light text-center py-3">
+                    <a href="{% url 'filtrer_mots' %}?statut=revision" class="btn btn-outline-warning">
+                        <i class="bi bi-list me-1"></i>Voir tous les mots en révision
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Activité récente -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white py-3">
+            <h5 class="mb-0"><i class="bi bi-activity me-2"></i>Activité récente</h5>
+        </div>
+        <div class="card-body">
+            {% if activites_recentes %}
+                <div class="timeline">
+                    {% for activite in activites_recentes %}
+                    <div class="timeline-item mb-3 pb-3 border-bottom">
+                        <div class="d-flex">
+                            <div class="timeline-icon me-3">
+                                {% if activite.type == 'validation' %}
+                                <div class="bg-success text-white rounded-circle p-2">
+                                    <i class="bi bi-check-lg"></i>
+                                </div>
+                                {% elif activite.type == 'revision' %}
+                                <div class="bg-warning rounded-circle p-2">
+                                    <i class="bi bi-pencil"></i>
+                                </div>
+                                {% elif activite.type == 'rejet' %}
+                                <div class="bg-danger text-white rounded-circle p-2">
+                                    <i class="bi bi-x-lg"></i>
+                                </div>
+                                {% else %}
+                                <div class="bg-info text-white rounded-circle p-2">
+                                    <i class="bi bi-info"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="mb-1">{{ activite.description }}</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>{{ activite.date|date:"d/m/Y à H:i" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-clock-history text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Aucune activité récente à afficher.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .dashboard-stat-card {
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+    }
+    
+    .dashboard-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        font-family: 'Montserrat', sans-serif;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 0;
+    }
+    
+    .timeline-icon .rounded-circle {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animation des cartes statistiques
+    document.addEventListener('DOMContentLoaded', function() {
+        const statCards = document.querySelectorAll('.dashboard-stat-card');
+        const featCards = document.querySelectorAll('.dashboard-recent-card');
+        
+        // Animer les cartes de statistiques
+        statCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+        
+        // Animer les cartes de fonctionnalités
+        featCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 300 + 100 * index);
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

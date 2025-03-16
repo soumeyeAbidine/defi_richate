@@ -1,0 +1,191 @@
+{% extends 'dictionnaire/base.html' %}
+
+{% block title %}Profil de {{ utilisateur.nom_complet }} - Dictionnaire Hassaniya{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Informations de profil -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-person-circle me-2"></i>Profil</h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="rounded-circle bg-light mx-auto p-4" style="width: 150px; height: 150px;">
+                            <i class="bi bi-person display-1 text-primary"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold">{{ utilisateur.nom_complet }}</h5>
+                    <p class="text-muted">
+                        {% if utilisateur.role == 'ADMIN' %}
+                            <span class="badge bg-danger">Administrateur</span>
+                        {% elif utilisateur.role == 'MODERATEUR' %}
+                            <span class="badge bg-warning">Modérateur</span>
+                        {% else %}
+                            <span class="badge bg-info">Contributeur</span>
+                        {% endif %}
+                    </p>
+                    <p class="text-muted mb-1">
+                        <i class="bi bi-envelope me-2"></i>{{ utilisateur.email }}
+                    </p>
+                    <p class="text-muted mb-1">
+                        <i class="bi bi-calendar me-2"></i>Membre depuis {{ utilisateur.date_inscription|date:"d/m/Y" }}
+                    </p>
+                </div>
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="text-center mx-3">
+                            <h4 class="mb-0 text-primary">{{ total_points }}</h4>
+                            <small class="text-muted">Points</small>
+                        </div>
+                        <div class="text-center mx-3">
+                            <h4 class="mb-0 text-success">{{ mots_proposes }}</h4>
+                            <small class="text-muted">Mots proposés</small>
+                        </div>
+                        <div class="text-center mx-3">
+                            <h4 class="mb-0 text-info">{{ mots_valides }}</h4>
+                            <small class="text-muted">Mots validés</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Badges -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-award me-2"></i>Badges</h4>
+                </div>
+                <div class="card-body">
+                    {% if badges %}
+                        <div class="row g-3">
+                            {% for badge in badges %}
+                                <div class="col-4 text-center">
+                                    <div class="badge-item mb-2" title="{{ badge.description }}">
+                                        <i class="bi {{ badge.icone }} fs-1 text-{{ badge.couleur }}"></i>
+                                        <div class="mt-1 small">{{ badge.nom }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-trophy text-muted fs-1"></i>
+                            <p class="mt-3 mb-0">Aucun badge pour le moment. Continuez à contribuer pour en gagner !</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistiques et activités -->
+        <div class="col-lg-8">
+            <!-- Niveau et progression -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-graph-up me-2"></i>Niveau et progression</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3">Niveau {{ niveau.niveau }} - {{ niveau.titre }}</h5>
+                    <div class="mb-3">
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ niveau.pourcentage }}%;" 
+                                 aria-valuenow="{{ niveau.pourcentage }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ niveau.points_actuels }}/{{ niveau.points_necessaires }} points
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small>Niveau {{ niveau.niveau }}</small>
+                            <small>Niveau {{ niveau.niveau_suivant }}</small>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-lightbulb-fill me-3 fs-4"></i>
+                            <div>
+                                <p class="mb-1">Pour atteindre le niveau {{ niveau.niveau_suivant }}, il vous faut encore {{ niveau.points_manquants }} points.</p>
+                                <p class="mb-0 small">Astuce : Proposez de nouveaux mots ou aidez à réviser les mots existants pour gagner plus de points !</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historique des contributions -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h4 class="mb-0"><i class="bi bi-journal-text me-2"></i>Historique des contributions</h4>
+                </div>
+                <div class="card-body p-0">
+                    {% if contributions %}
+                        <div class="list-group list-group-flush">
+                            {% for contribution in contributions %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ contribution.action }}</h6>
+                                            <small class="text-muted">{{ contribution.date_creation|date:"d/m/Y à H:i" }}</small>
+                                        </div>
+                                        <span class="badge bg-success rounded-pill">+{{ contribution.points }} pts</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-journal-plus text-muted fs-1"></i>
+                            <p class="mt-3 mb-0">Aucune contribution pour le moment. Commencez à participer !</p>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if contributions %}
+                    <div class="card-footer bg-light text-center">
+                        <a href="#" class="btn btn-outline-warning">Voir toutes les contributions</a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Derniers mots proposés -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-book me-2"></i>Derniers mots proposés</h4>
+                </div>
+                <div class="card-body p-0">
+                    {% if mots %}
+                        <div class="list-group list-group-flush">
+                            {% for mot in mots %}
+                                <a href="{% url 'detail_mot' mot.id %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ mot.nom }}</h6>
+                                            <small class="text-muted">Proposé le {{ mot.date_creation|date:"d/m/Y" }}</small>
+                                        </div>
+                                        <span class="badge badge-statut 
+                                            {% if mot.statut_validation.statut == 'attente' %}badge-attente
+                                            {% elif mot.statut_validation.statut == 'revision' %}badge-revision
+                                            {% elif mot.statut_validation.statut == 'valide' %}badge-valide
+                                            {% else %}badge-rejete{% endif %}">
+                                            {{ mot.statut_validation.get_statut_display }}
+                                        </span>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-journal-plus text-muted fs-1"></i>
+                            <p class="mt-3 mb-0">Vous n'avez proposé aucun mot pour le moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+                {% if mots %}
+                    <div class="card-footer bg-light text-center">
+                        <a href="{% url 'details_mot' %}" class="btn btn-outline-primary">Voir tous mes mots</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

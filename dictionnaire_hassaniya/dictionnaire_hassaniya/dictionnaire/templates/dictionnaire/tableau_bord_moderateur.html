@@ -1,0 +1,257 @@
+{% extends 'dictionnaire/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Tableau de bord de modération</h1>
+        <div>
+            <a href="{% url 'filtrer_mots' %}" class="btn btn-primary">
+                <i class="bi bi-filter"></i> Filtrer les mots
+            </a>
+            <div class="form-check form-switch d-inline-block ms-2">
+                <input class="form-check-input" type="checkbox" id="auto-refresh">
+                <label class="form-check-label" for="auto-refresh">Auto-actualisation</label>
+            </div>
+        </div>
+    </div>
+    
+    {% if est_admin and stats %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3>Statistiques globales</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h3>{{ stats.total }}</h3>
+                                    <p>Total des mots</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="card bg-secondary text-white">
+                                <div class="card-body">
+                                    <h3>{{ stats.total_attente }}</h3>
+                                    <p>En attente</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="card bg-warning">
+                                <div class="card-body">
+                                    <h3>{{ stats.total_revision }}</h3>
+                                    <p>En révision</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h3>{{ stats.total_valides }}</h3>
+                                    <p>Validés</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3>Top Contributeurs</h3>
+                </div>
+                <div class="card-body">
+                    {% if top_contributeurs %}
+                    <div class="list-group">
+                        {% for contributeur in top_contributeurs %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ contributeur.nom_complet }}</h5>
+                                <span class="badge bg-primary">{{ contributeur.total_points }} points</span>
+                            </div>
+                            <p class="mb-1">{{ contributeur.role }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>Aucun contributeur avec des points.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h3>Mots en attente ({{ mots_en_attente.count }})</h3>
+                </div>
+                <div class="card-body">
+                    {% if mots_en_attente %}
+                    <div class="list-group">
+                        {% for mot in mots_en_attente %}
+                        <a href="{% url 'examiner_mot' mot.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ mot.nom }}</h5>
+                                <small>{{ mot.date_creation|date:"d/m/Y" }}</small>
+                            </div>
+                            <p class="mb-1">Proposé par {{ mot.cree_par.nom_complet }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>Aucun mot en attente.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h3>Mots en révision ({{ mots_en_revision.count }})</h3>
+                </div>
+                <div class="card-body">
+                    {% if mots_en_revision %}
+                    <div class="list-group">
+                        {% for mot in mots_en_revision %}
+                        <a href="{% url 'examiner_mot' mot.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ mot.nom }}</h5>
+                                <small>{{ mot.date_creation|date:"d/m/Y" }}</small>
+                            </div>
+                            <p class="mb-1">Proposé par {{ mot.cree_par.nom_complet }}</p>
+                            {% if mot.statut_validation.moderateur %}
+                            <small class="text-muted">En révision par {{ mot.statut_validation.moderateur.nom_complet }}</small>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>Aucun mot en révision.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3>Derniers mots validés</h3>
+                </div>
+                <div class="card-body">
+                    {% if mots_valides %}
+                    <div class="list-group">
+                        {% for mot in mots_valides %}
+                        <a href="{% url 'examiner_mot' mot.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ mot.nom }}</h5>
+                                <small>Validé le {{ mot.statut_validation.date_mise_a_jour|date:"d/m/Y" }}</small>
+                            </div>
+                            <p class="mb-1">Proposé par {{ mot.cree_par.nom_complet }}</p>
+                            {% if mot.statut_validation.moderateur %}
+                            <small class="text-muted">Validé par {{ mot.statut_validation.moderateur.nom_complet }}</small>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>Aucun mot validé récemment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h3>Derniers mots rejetés</h3>
+                </div>
+                <div class="card-body">
+                    {% if mots_rejetes %}
+                    <div class="list-group">
+                        {% for mot in mots_rejetes %}
+                        <a href="{% url 'examiner_mot' mot.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">{{ mot.nom }}</h5>
+                                <small>Rejeté le {{ mot.statut_validation.date_mise_a_jour|date:"d/m/Y" }}</small>
+                            </div>
+                            <p class="mb-1">Proposé par {{ mot.cree_par.nom_complet }}</p>
+                            {% if mot.statut_validation.moderateur %}
+                            <small class="text-muted">Rejeté par {{ mot.statut_validation.moderateur.nom_complet }}</small>
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>Aucun mot rejeté récemment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if est_admin %}
+    <div class="card mt-4 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3>Activité de modération</h3>
+        </div>
+        <div class="card-body">
+            <p>Cette section affichera les statistiques d'activité des modérateurs, comme le nombre de mots traités par chacun, le temps moyen de révision, etc.</p>
+            <button class="btn btn-primary" disabled>Fonctionnalité à venir</button>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3>Administration</h3>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'gestion_utilisateurs' %}" class="btn btn-primary">Gestion des utilisateurs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Script pour permettre le rafraîchissement automatique du tableau de bord
+    function setupAutomaticRefresh() {
+        const refreshCheckbox = document.getElementById('auto-refresh');
+        let refreshInterval;
+        
+        if (refreshCheckbox) {
+            refreshCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    // Rafraîchir toutes les 30 secondes
+                    refreshInterval = setInterval(() => {
+                        location.reload();
+                    }, 30000);
+                } else {
+                    clearInterval(refreshInterval);
+                }
+            });
+        }
+    }
+    
+    // Exécuter au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        setupAutomaticRefresh();
+    });
+</script>
+{% endblock %}

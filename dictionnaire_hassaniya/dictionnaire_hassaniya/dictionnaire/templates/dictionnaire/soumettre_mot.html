@@ -1,0 +1,26 @@
+{% extends 'dictionnaire/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Proposer un nouveau mot</h1>
+    
+    {% if erreur %}
+    <div class="alert alert-danger">{{ erreur }}</div>
+    {% endif %}
+    
+    <form method="post" action="{% url 'soumettre_mot' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="nom">Mot en Hassaniya*</label>
+            <input type="text" class="form-control" id="nom" name="nom" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="definition">Définition*</label>
+            <textarea class="form-control" id="definition" name="definition" rows="3" required></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Proposer</button>
+    </form>
+</div>
+{% endblock %}

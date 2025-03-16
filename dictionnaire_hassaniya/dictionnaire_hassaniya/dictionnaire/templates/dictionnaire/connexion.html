@@ -1,0 +1,105 @@
+{% extends 'dictionnaire/base.html' %}
+
+{% block title %}Connexion - Dictionnaire Hassaniya{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h4 mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Connexion</h2>
+            </div>
+            <div class="card-body p-4">
+                {% if erreur %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ erreur }}
+                </div>
+                {% endif %}
+                
+                <form method="post" action="{% url 'connexion' %}" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="email" class="form-label fw-semibold">Adresse email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="exemple@email.com" required>
+                        </div>
+                        <div class="invalid-feedback">
+                            Veuillez entrer une adresse email valide.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="mot_de_passe" class="form-label fw-semibold">Mot de passe</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                            <input type="password" class="form-control" id="mot_de_passe" name="mot_de_passe" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">
+                            Veuillez entrer votre mot de passe.
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary py-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer bg-light py-3">
+                <div class="text-center">
+                    <p class="mb-0">Vous n'avez pas de compte ? <a href="{% url 'inscription' %}" class="fw-semibold text-decoration-none">S'inscrire</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'accueil' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-house-door me-2"></i>Retour à l'accueil
+            </a>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Validation du formulaire
+    document.addEventListener('DOMContentLoaded', function() {
+        'use strict'
+        
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+        
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+            
+        // Toggle password visibility
+        const togglePassword = document.querySelector('#toggle-password');
+        const password = document.querySelector('#mot_de_passe');
+        
+        togglePassword.addEventListener('click', function () {
+            // Toggle type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // Toggle icon
+            this.querySelector('i').classList.toggle('bi-eye');
+            this.querySelector('i').classList.toggle('bi-eye-slash');
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'dictionnaire/base_admin.html' %}
+
+{% block title %}Administration - Dictionnaire Hassaniya{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Panneau d'Administration</h1>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3>Gestion des utilisateurs</h3>
+                </div>
+                <div class="card-body">
+                    <p>Gérez les utilisateurs, leurs rôles et leurs permissions.</p>
+                    <a href="{% url 'gestion_utilisateurs' %}" class="btn btn-primary">Accéder</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3>Tableau de bord de modération</h3>
+                </div>
+                <div class="card-body">
+                    <p>Accédez aux fonctionnalités de modération et aux statistiques.</p>
+                    <a href="{% url 'tableau_bord_moderateur' %}" class="btn btn-success">Accéder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h3>Filtrer les mots</h3>
+                </div>
+                <div class="card-body">
+                    <p>Recherchez et filtrez les mots selon différents critères.</p>
+                    <a href="{% url 'filtrer_mots' %}" class="btn btn-info">Accéder</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-warning">
+                    <h3>Accueil du site</h3>
+                </div>
+                <div class="card-body">
+                    <p>Retournez à la page d'accueil du dictionnaire.</p>
+                    <a href="{% url 'accueil' %}" class="btn btn-warning">Accéder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

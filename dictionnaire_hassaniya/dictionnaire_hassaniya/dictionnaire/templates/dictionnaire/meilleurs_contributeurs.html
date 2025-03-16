@@ -1,0 +1,276 @@
+{% extends 'dictionnaire/base.html' %}
+
+{% block title %}Classement des contributeurs - Dictionnaire Hassaniya{% endblock %}
+
+{% block extra_css %}
+<style>
+    .contributeur-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .contributeur-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .contributeur-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #f0f4f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
+
+    .contributeur-rang {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        width: 50px;
+        text-align: center;
+    }
+
+    .badge-contributeur {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50rem;
+    }
+
+    .contributeur-stats {
+        background-color: #f8fafc;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .badges-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .badge-icon {
+        font-size: 1.2rem;
+        opacity: 0.8;
+        transition: all 0.3s ease;
+    }
+
+    .badge-icon:hover {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+
+    .table-contributeurs {
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .table-contributeurs > tbody > tr {
+        background-color: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .table-contributeurs > tbody > tr:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-lg-12">
+            <div class="card" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);">
+                <div class="card-body text-white p-5 text-center">
+                    <h1 class="display-4 fw-bold mb-3">Classement des contributeurs</h1>
+                    <p class="lead mb-4">Découvrez les membres les plus actifs de notre communauté linguistique</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if request.session.utilisateur_id %}
+    <div class="row mb-5">
+        <div class="col-lg-12">
+            <div class="card contributeur-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="contributeur-rang">
+                            #{{ rang_utilisateur }}
+                        </div>
+                        <div class="contributeur-avatar">
+                            <i class="bi bi-person-fill fs-2 text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h4 class="mb-1">{{ utilisateur.nom_complet }}</h4>
+                            <div class="contributeur-stats d-flex justify-content-between">
+                                <div>
+                                    <small class="text-muted d-block">Points</small>
+                                    <strong>{{ utilisateur.calculer_total_points }}</strong>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Mots proposés</small>
+                                    <strong>{{ utilisateur.mots.count }}</strong>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Badges</small>
+                                    <strong>{{ utilisateur.badges.count }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-trophy me-2"></i>Top contributeurs</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-contributeurs mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="text-center">Rang</th>
+                                    <th>Contributeur</th>
+                                    <th class="text-center">Niveau</th>
+                                    <th class="text-center">Points</th>
+                                    <th class="text-center">Mots proposés</th>
+                                    <th class="text-center">Mots validés</th>
+                                    <th class="text-center">Badges</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for contributeur in contributeurs %}
+                                <tr {% if contributeur.id == request.session.utilisateur_id %}class="table-active"{% endif %}>
+                                    <td class="text-center fw-bold">{{ forloop.counter }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="contributeur-avatar me-3">
+                                                <i class="bi bi-person-fill fs-4"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ contributeur.nom_complet }}</h6>
+                                                <span class="badge badge-contributeur 
+                                                    {% if contributeur.role == 'ADMIN' %}bg-danger
+                                                    {% elif contributeur.role == 'MODERATEUR' %}bg-warning
+                                                    {% else %}bg-info{% endif %}">
+                                                    {{ contributeur.get_role_display }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">Niveau {{ contributeur.niveau }}</span>
+                                    </td>
+                                    <td class="text-center fw-bold">{{ contributeur.total_points }}</td>
+                                    <td class="text-center">{{ contributeur.mots_proposes }}</td>
+                                    <td class="text-center">{{ contributeur.mots_valides }}</td>
+                                    <td class="text-center">
+                                        <div class="badges-container">
+                                            {% for badge_utilisateur in contributeur.badges %}
+                                                <div class="badge-icon" title="{{ badge_utilisateur.badge.nom }}">
+                                                    <i class="bi {{ badge_utilisateur.badge.icone }} text-{{ badge_utilisateur.badge.couleur }}"></i>
+                                                </div>
+                                            {% empty %}
+                                                <small class="text-muted">-</small>
+                                            {% endfor %}
+                                            {% if contributeur.badges|length > 3 %}
+                                                <div class="badge-icon text-muted" title="Plus de badges">
+                                                    <i class="bi bi-plus-circle"></i>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{% url 'profil_utilisateur' contributeur.id %}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           data-bs-toggle="tooltip" 
+                                           title="Voir le profil">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <i class="bi bi-people fs-1 text-muted mb-3"></i>
+                                        <h5 class="text-muted">Aucun contributeur pour le moment</h5>
+                                        <p class="text-muted">Soyez le premier à contribuer au dictionnaire !</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-lg-12">
+            <div class="card bg-light">
+                <div class="card-body text-center">
+                    <h4 class="mb-3"><i class="bi bi-info-circle me-2 text-primary"></i>Comment gagner des points ?</h4>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="p-3 bg-white rounded shadow-sm mb-3">
+                                <i class="bi bi-plus-circle fs-2 text-success mb-3 d-block"></i>
+                                <h5>Proposer un mot</h5>
+                                <p class="text-muted">5 points</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-white rounded shadow-sm mb-3">
+                                <i class="bi bi-pencil-square fs-2 text-primary mb-3 d-block"></i>
+                                <h5>Modifier un mot</h5>
+                                <p class="text-muted">2 points</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-white rounded shadow-sm mb-3">
+                                <i class="bi bi-chat-text fs-2 text-info mb-3 d-block"></i>
+                                <h5>Commenter</h5>
+                                <p class="text-muted">1 point</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 bg-white rounded shadow-sm mb-3">
+                                <i class="bi bi-check-circle fs-2 text-success mb-3 d-block"></i>
+                                <h5>Mot validé</h5>
+                                <p class="text-muted">10 points</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialiser les tooltips Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

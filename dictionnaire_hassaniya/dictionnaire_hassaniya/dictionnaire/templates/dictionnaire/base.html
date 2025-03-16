@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dictionnaire Hassaniya{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Styles personnalisés -->
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #10b981;
+            --dark-color: #1e293b;
+            --light-color: #f1f5f9;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+            color: #333;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 80px; /* hauteur du footer */
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark-color);
+            transition: color 0.3s;
+            margin: 0 5px;
+            position: relative;
+        }
+        
+        .nav-link:hover::after {
+            content: '';
+            position: absolute;
+            width: 70%;
+            height: 2px;
+            background-color: var(--primary-color);
+            bottom: -2px;
+            left: 15%;
+            transition: width 0.3s;
+        }
+        
+        .badge {
+            padding: 0.35em 0.65em;
+            border-radius: 50rem;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .btn {
+            font-weight: 500;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+        
+        .btn-info {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        /* Styling pour les badges de statut */
+        .badge-statut {
+            font-size: 0.85rem;
+            padding: 0.35em 0.75em;
+            border-radius: 50rem;
+        }
+        
+        .badge-attente {
+            background-color: #94a3b8;
+            color: white;
+        }
+        
+        .badge-revision {
+            background-color: #f59e0b;
+            color: white;
+        }
+        
+        .badge-valide {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .badge-rejete {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        /* Animation de notification */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .notification-badge {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* List group styling */
+        .list-group-item {
+            border-left: none;
+            border-right: none;
+            margin-bottom: 0.25rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f1f5f9;
+        }
+        
+        /* Form controls */
+        .form-control {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #f1f5f9;
+            padding: 1.5rem 0;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card {
+                margin-bottom: 1rem;
+            }
+            
+            body {
+                padding-bottom: 120px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'accueil' %}">
+                <i class="bi bi-book-half me-2"></i>Dictionnaire Hassaniya
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    {% if request.session.utilisateur_id %}
+                    {% with utilisateur=request.utilisateur %}
+                        {% if utilisateur.est_administrateur %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'accueil_admin' %}">
+                                    <i class="bi bi-speedometer2 me-1"></i>Administration
+                                </a>
+                            </li>
+                        {% elif utilisateur.est_moderateur %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'tableau_bord_moderateur' %}">
+                                    <i class="bi bi-kanban me-1"></i>Tableau de bord
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endwith %}
+                    {% endif %}
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accueil' %}">
+                            <i class="bi bi-house-door me-1"></i>Accueil
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'soumettre_mot' %}">
+                            <i class="bi bi-plus-circle me-1"></i>Proposer un mot
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'notifications' %}">
+                            <i class="bi bi-bell me-1"></i>Notifications
+                            {% if unread_notifications_count > 0 %}
+                                <span class="badge rounded-pill bg-danger notification-badge">{{ unread_notifications_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'details_mot' %}">
+                            <i class="bi bi-journal-text me-1"></i>Mes mots
+                        </a>
+                    </li>
+                    <div class="navbar-nav">
+                        {% if request.session.utilisateur_id %}
+                            <div class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="me-2 bg-light rounded-circle p-1">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <span class="d-none d-md-inline">Mon compte</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'profil_utilisateur' %}">
+                                            <i class="bi bi-person me-2"></i>Mon profil
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'liste_badges' %}">
+                                            <i class="bi bi-award me-2"></i>Mes badges
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'meilleurs_contributeurs' %}">
+                                            <i class="bi bi-trophy me-2"></i>Classement
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'deconnexion' %}">
+                                            <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <a class="nav-link d-flex align-items-center" href="{% url 'connexion' %}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>Connexion
+                            </a>
+                            <a class="nav-link d-flex align-items-center" href="{% url 'inscription' %}">
+                                <i class="bi bi-person-plus me-1"></i>Inscription
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="container py-4">
+        {% if messages %}
+        <div class="row mb-4">
+            <div class="col">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Pied de page -->
+    <footer class="py-3 bg-light">
+        <div class="container">
+            <p class="mb-0 text-muted">© 2025 Dictionnaire Hassaniya - Un projet collaboratif pour préserver la langue</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- JavaScript personnalisé -->
+    <script>
+        // Activer les tooltips Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+            
+            // Ajouter classe active au lien actuel
+            const currentLocation = location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-nav a.nav-link');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('active');
+                    link.setAttribute('aria-current', 'page');
+                    link.style.color = 'var(--primary-color)';
+                    link.style.fontWeight = '600';
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

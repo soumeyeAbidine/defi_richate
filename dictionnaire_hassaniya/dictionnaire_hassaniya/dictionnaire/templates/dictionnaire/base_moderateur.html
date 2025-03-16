@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Modération - Dictionnaire Hassaniya{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Styles personnalisés -->
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #10b981;
+            --dark-color: #1e293b;
+            --light-color: #f1f5f9;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: #333;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 80px; /* hauteur du footer */
+            padding-top: 80px; /* Espace pour la navbar fixe */
+        }
+        
+        /* Barre de navigation améliorée */
+        .navbar {
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+            background-color: #fff;
+        }
+        
+        .navbar-brand {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark-color);
+            transition: all 0.3s;
+            margin: 0 5px;
+            position: relative;
+            padding: 8px 16px;
+            border-radius: 6px;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(37, 99, 235, 0.08);
+            color: var(--primary-color);
+        }
+        
+        /* Navbar expanded avec navigation horizontale */
+        .horizontal-nav {
+            display: flex;
+            justify-content: center;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .horizontal-nav .nav-item {
+            margin: 0;
+        }
+
+        .horizontal-nav .nav-link {
+            padding: 16px 24px;
+            font-weight: 500;
+            color: #64748b;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .horizontal-nav .nav-link.active {
+            color: var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.05);
+            font-weight: 600;
+        }
+
+        .horizontal-nav .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .horizontal-nav .nav-link i {
+            margin-right: 8px;
+        }
+
+        .horizontal-nav .nav-link:hover {
+            color: var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        
+        /* Style des cartes */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+            border: none;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s, transform 0.4s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-header {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            padding: 1.25rem 1.5rem;
+            border-bottom: none;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Styles de boutons améliorés */
+        .btn {
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 0.5rem 1.25rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+        
+        .btn-info {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        /* Footer amélioré */
+        footer {
+            background-color: #fff;
+            padding: 1.5rem 0;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            border-top: 1px solid #e5e7eb;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+        }
+        
+        /* Breadcrumb amélioré */
+        .breadcrumb {
+            margin-bottom: 0;
+        }
+        
+        .breadcrumb-item a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb-item.active {
+            font-weight: 500;
+            color: #6c757d;
+        }
+        
+        /* Badges et alertes */
+        .badge {
+            padding: 0.35em 0.65em;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Animation de notification */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .notification-badge {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Main content styles */
+        .main-content {
+            transition: all 0.3s ease;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        /* Animations de page */
+        .page-enter {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .page-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        
+        /* Badge styling pour statuts de mots */
+        .badge-statut {
+            font-size: 0.85rem;
+            padding: 0.35em 0.75em;
+            border-radius: 50rem;
+        }
+        
+        .badge-attente {
+            background-color: #94a3b8;
+            color: white;
+        }
+        
+        .badge-revision {
+            background-color: #f59e0b;
+            color: white;
+        }
+        
+        .badge-valide {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .badge-rejete {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .horizontal-nav {
+                flex-wrap: wrap;
+            }
+            
+            .horizontal-nav .nav-link {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white mb-0 fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="{% url 'tableau_bord_moderateur' %}">
+                <i class="bi bi-shield-check me-2 text-primary"></i>Modération - Dictionnaire Hassaniya
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/moderateur/' %}active{% endif %}" href="{% url 'tableau_bord_moderateur' %}">
+                            <i class="bi bi-speedometer2"></i> Tableau de bord
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'filtrer_mots' in request.path %}active{% endif %}" href="{% url 'filtrer_mots' %}">
+                            <i class="bi bi-funnel-fill"></i> Filtrer les mots
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="modsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-list-check"></i> Mots par statut
+                        </a>
+                        <ul class="dropdown-menu shadow" aria-labelledby="modsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'filtrer_mots' %}?statut=attente"><i class="bi bi-hourglass-split me-2"></i>En attente</a></li>
+                            <li><a class="dropdown-item" href="{% url 'filtrer_mots' %}?statut=revision"><i class="bi bi-pencil-square me-2"></i>En révision</a></li>
+                            <li><a class="dropdown-item" href="{% url 'filtrer_mots' %}?statut=valide"><i class="bi bi-check-circle-fill me-2"></i>Validés</a></li>
+                            <li><a class="dropdown-item" href="{% url 'filtrer_mots' %}?statut=rejete"><i class="bi bi-x-circle-fill me-2"></i>Rejetés</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <a href="{% url 'accueil' %}" class="btn btn-outline-primary me-2 d-none d-md-inline-block">
+                        <i class="bi bi-house-door me-1"></i>Accueil public
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="me-2 bg-light rounded-circle p-1">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <span class="d-none d-md-inline">{{ request.utilisateur.nom_complet }}</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'accueil' %}"><i class="bi bi-house-door me-2"></i>Accueil public</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'deconnexion' %}"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <!-- Messages d'alerte -->
+        {% if messages %}
+        <div class="row mt-4">
+            <div class="col">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        {% if message.tags == 'success' %}
+                        <i class="bi bi-check-circle-fill me-2 fs-4"></i>
+                        {% elif message.tags == 'error' or message.tags == 'danger' %}
+                        <i class="bi bi-exclamation-circle-fill me-2 fs-4"></i>
+                        {% elif message.tags == 'warning' %}
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>
+                        {% elif message.tags == 'info' %}
+                        <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Secondary navigation contextuelle (si nécessaire) -->
+        {% block secondary_nav %}{% endblock %}
+        
+        <!-- Contenu principal -->
+        <div class="main-content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    
+    <!-- Pied de page -->
+    <footer class="py-3 bg-light">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="mb-0 text-muted">© 2025 Dictionnaire Hassaniya - Panneau de modération</p>
+                <div>
+                    <a href="#" class="text-muted me-2"><i class="bi bi-question-circle"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- JavaScript personnalisé -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Activer les tooltips Bootstrap
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+            
+            // Animation d'apparition des cartes
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.card');
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 300);
+            
+            // Animation des éléments du menu
+            const menuElements = document.querySelectorAll('.navbar-nav .nav-item');
+            menuElements.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(-10px)';
+                
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 200 + (index * 50));
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

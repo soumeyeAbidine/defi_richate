@@ -1,0 +1,186 @@
+<html><meta charset="UTF-8">
+<body>
+{% extends 'dictionnaire/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Révision du mot: {{ mot.nom }}</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="badge {% if statut.statut == 'attente' %}bg-secondary{% elif statut.statut == 'revision' %}bg-warning{% else %}bg-success{% endif %}">
+                {{ statut.get_statut_display }}
+            </span>
+            <span>Proposé par {{ mot.cree_par.nom_complet }} le {{ mot.date_creation|date:"d/m/Y" }}</span>
+        </div>
+        <div class="card-body">
+            <h5>Définitions</h5>
+            {% for definition in definitions %}
+            <div class="mb-2">
+                <p>{{ definition.texte }}</p>
+                <small class="text-muted">Ajoutée par {{ definition.ajoute_par.nom_complet }} le {{ definition.date_creation|date:"d/m/Y" }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <h3>Commentaires</h3>
+    <div class="commentaires mb-4">
+        {% for commentaire in commentaires %}
+        <div class="card mb-2">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>{{ commentaire.auteur.nom_complet }}</span>
+                <span>{{ commentaire.date_creation|date:"d/m/Y H:i" }}</span>
+            </div>
+            <div class="card-body">
+                <p>{{ commentaire.texte }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <p>Aucun commentaire pour le moment.</p>
+        {% endfor %}
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Ajouter un commentaire</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'ajouter_commentaire' mot.id %}">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <textarea class="form-control" name="commentaire" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Ajouter un commentaire</button>
+            </form>
+        </div>
+    </div>
+    
+    <h3>Actions de modération</h3>
+    <div class="actions-moderation">
+        <div class="d-flex flex-wrap gap-2 mb-4">
+            {% if statut.statut == 'attente' %}
+            <form method="post" action="{% url 'examiner_mot' mot.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="commencer_revision">
+                <button type="submit" class="btn btn-warning me-2">Commencer la révision</button>
+            </form>
+            {% endif %}
+            
+            {% if statut.statut != 'valide' %}
+                {% if statut.statut == 'rejete' %}
+                <!-- Actions spécifiques pour les mots rejetés -->
+                <button type="button" class="btn btn-warning me-2" data-bs-toggle="collapse" data-bs-target="#repriseForm">
+                    Reprendre la révision
+                </button>
+                {% else %}
+                <!-- Actions pour les mots en attente ou en révision -->
+                <form method="post" action="{% url 'examiner_mot' mot.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="valider">
+                    <button type="submit" class="btn btn-success me-2">Valider le mot</button>
+                </form>
+                
+                <button type="button" class="btn btn-info me-2" data-bs-toggle="collapse" data-bs-target="#clarificationForm">
+                    Demander des clarifications
+                </button>
+                
+                <button type="button" class="btn btn-danger" data-bs-toggle="collapse" data-bs-target="#rejectionForm">
+                    Rejeter le mot
+                </button>
+                {% endif %}
+            {% endif %}
+        </div>
+        
+        <div class="collapse mb-4" id="clarificationForm">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    Demande de clarification
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'examiner_mot' mot.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="demander_clarification">
+                        <div class="form-group mb-3">
+                            <label for="commentaire-clarification">Précisez votre demande de clarification:</label>
+                            <textarea class="form-control" id="commentaire-clarification" name="commentaire" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-info">Envoyer la demande</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="collapse mb-4" id="rejectionForm">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    Rejeter le mot
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'examiner_mot' mot.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="rejeter">
+                        <div class="form-group mb-3">
+                            <label for="commentaire-rejet">Raison du rejet:</label>
+                            <textarea class="form-control" id="commentaire-rejet" name="commentaire" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Confirmer le rejet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Formulaire pour reprendre la révision d'un mot rejeté -->
+        <div class="collapse mb-4" id="repriseForm">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    Reprendre la révision
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'examiner_mot' mot.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reprendre_revision">
+                        <div class="form-group mb-3">
+                            <label for="commentaire-reprise">Commentaire (optionnel):</label>
+                            <textarea class="form-control" id="commentaire-reprise" name="commentaire" rows="3" placeholder="Expliquez pourquoi vous reprenez ce mot en révision..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Reprendre la révision</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h4>Guide de modération</h4>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li><strong>Commencer la révision</strong> - Indiquez que vous êtes en train d'évaluer ce mot</li>
+                <li><strong>Valider</strong> - Le mot et sa définition sont corrects et peuvent être ajoutés au dictionnaire</li>
+                <li><strong>Demander des clarifications</strong> - Demandez à l'auteur de préciser ou corriger certains aspects</li>
+                <li><strong>Rejeter</strong> - Le mot est inapproprié ou hors sujet pour le dictionnaire</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Ferme les autres formulaires lorsqu'un est ouvert
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const target = this.getAttribute('data-bs-target');
+            document.querySelectorAll('.collapse').forEach(collapse => {
+                if ("#" + collapse.id !== target) {
+                    collapse.classList.remove('show');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
+</body>
+</html>

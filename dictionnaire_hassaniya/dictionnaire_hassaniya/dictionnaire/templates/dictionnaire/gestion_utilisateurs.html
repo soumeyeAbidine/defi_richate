@@ -1,0 +1,127 @@
+{% extends 'dictionnaire/base.html' %}
+
+{% block title %}Gestion des utilisateurs{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Gestion des utilisateurs</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3>Liste des utilisateurs</h3>
+        </div>
+        <div class="card-body">
+            {% if utilisateurs %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Rôle actuel</th>
+                                <th>Date d'inscription</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for utilisateur in utilisateurs %}
+                                <tr>
+                                    <td>{{ utilisateur.nom_complet }}</td>
+                                    <td>{{ utilisateur.email }}</td>
+                                    <td>
+                                        <span id="role-{{ utilisateur.id }}">
+                                            {% if utilisateur.role == 'ADMIN' %}
+                                                Administrateur
+                                            {% elif utilisateur.role == 'MODERATEUR' %}
+                                                Modérateur
+                                            {% else %}
+                                                Contributeur
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ utilisateur.date_inscription|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ utilisateur.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Modifier le rôle
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ utilisateur.id }}">
+                                                <li><a class="dropdown-item" href="#" onclick="modifierRole({{ utilisateur.id }}, 'ADMIN')">Administrateur</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="modifierRole({{ utilisateur.id }}, 'MODERATEUR')">Modérateur</a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="modifierRole({{ utilisateur.id }}, 'CONTRIBUTEUR')">Contributeur</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>Aucun utilisateur trouvé.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'accueil_admin' %}" class="btn btn-secondary">Retour au panneau d'administration</a>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function modifierRole(utilisateurId, nouveauRole) {
+        // Créer un jeton CSRF pour la requête POST
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        
+        // Envoyer la requête pour modifier le rôle
+        fetch('{% url "modifier_role" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrftoken
+            },
+            body: `utilisateur_id=${utilisateurId}&nouveau_role=${nouveauRole}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Mettre à jour l'affichage du rôle
+                const roleElement = document.getElementById(`role-${utilisateurId}`);
+                if (nouveauRole === 'ADMIN') {
+                    roleElement.textContent = 'Administrateur';
+                } else if (nouveauRole === 'MODERATEUR') {
+                    roleElement.textContent = 'Modérateur';
+                } else {
+                    roleElement.textContent = 'Contributeur';
+                }
+                
+                // Afficher un message de succès
+                alert('Rôle modifié avec succès !');
+            } else {
+                // Afficher l'erreur
+                alert('Erreur: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue. Veuillez réessayer.');
+        });
+    }
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'dictionnaire/base.html' %}
+
+{% block title %}Modifier le mot: {{ mot.nom }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Modifier le mot: {{ mot.nom }}</h1>
+    
+    {% if erreur %}
+    <div class="alert alert-danger">{{ erreur }}</div>
+    {% endif %}
+    
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h3>Statut actuel</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Statut:</strong> 
+                <span class="badge {% if mot.statut_validation.statut == 'attente' %}bg-secondary{% elif mot.statut_validation.statut == 'revision' %}bg-warning{% elif mot.statut_validation.statut == 'valide' %}bg-success{% else %}bg-danger{% endif %}">
+                    {{ mot.statut_validation.get_statut_display }}
+                </span>
+            </p>
+            <p class="text-muted">Note: Si vous modifiez un mot déjà validé, il sera remis en statut "révision" et devra être validé à nouveau par un modérateur.</p>
+        </div>
+    </div>
+    
+    <form method="post" action="{% url 'modifier_mot' mot.id %}">
+        {% csrf_token %}
+        <div class="form-group mb-3">
+            <label for="nom">Mot en Hassaniya*</label>
+            <input type="text" class="form-control" id="nom" name="nom" value="{{ mot.nom }}" required>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label for="definition">Définition*</label>
+            <textarea class="form-control" id="definition" name="definition" rows="3" required>{{ definition.texte }}</textarea>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+            <a href="{% url 'detail_mot' mot.id %}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

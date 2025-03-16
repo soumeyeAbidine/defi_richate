@@ -1,0 +1,372 @@
+{% extends 'dictionnaire/base_admin.html' %}
+
+{% block title %}Tableau de bord - Administration{% endblock title %}
+
+{% block extra_css %}
+<style>
+    .dashboard-stat-card {
+        border-radius: 12px;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: none;
+        overflow: hidden;
+    }
+    
+    .dashboard-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        font-family: 'Montserrat', sans-serif;
+    }
+    
+    .stat-label {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 0;
+    }
+    
+    .dashboard-recent-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        border: none;
+    }
+    
+    .card-header {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .card-header::after {
+        content: '';
+        position: absolute;
+        right: -20px;
+        top: -20px;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .word-item {
+        padding: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+    
+    .word-item:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
+    
+    .word-item:last-child {
+        border-bottom: none;
+    }
+    
+    .btn-examine {
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+    
+    .arabic-word {
+        font-family: 'Amiri', serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .date-label {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+    
+    .activity-label {
+        position: relative;
+        display: inline-block;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        border-radius: 50px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0 text-gray-800">Tableau de bord administrateur</h1>
+        <ol class="breadcrumb bg-transparent p-0 mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'accueil_admin' %}">Administration</a></li>
+            <li class="breadcrumb-item active">Tableau de bord</li>
+        </ol>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-stat-card bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label text-muted mb-1">Utilisateurs</p>
+                            <h3 class="stat-number mb-0">{{ total_utilisateurs }}</h3>
+                        </div>
+                        <div class="stat-icon text-primary">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-primary bg-opacity-10 py-2">
+                    <a href="{% url 'gestion_utilisateurs' %}" class="small text-primary fw-medium">
+                        Gérer les utilisateurs <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-stat-card bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label text-muted mb-1">Total mots</p>
+                            <h3 class="stat-number mb-0">{{ total_mots }}</h3>
+                        </div>
+                        <div class="stat-icon text-success">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-success bg-opacity-10 py-2">
+                    <a href="{% url 'filtrer_mots' %}" class="small text-success fw-medium">
+                        Voir tous les mots <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-stat-card bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label text-muted mb-1">Mots validés</p>
+                            <h3 class="stat-number mb-0">{{ mots_valides }}</h3>
+                        </div>
+                        <div class="stat-icon text-warning">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-warning bg-opacity-10 py-2">
+                    <a href="{% url 'filtrer_mots' %}?statut=valide" class="small text-warning fw-medium">
+                        Voir mots validés <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="dashboard-stat-card bg-white h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="stat-label text-muted mb-1">En attente</p>
+                            <!-- Option 1: Si mots_en_attente est déjà calculé dans la vue -->
+                            {% if mots_en_attente %}
+                                <h3 class="stat-number mb-0">{{ mots_en_attente }}</h3>
+                            {% else %}
+                                <!-- Option 2: Calculer dans le template -->
+                                <h3 class="stat-number mb-0">
+                                    {{ total_mots|default:0|add:"-0"|add:"-"|add:mots_valides }}
+                                </h3>
+                            {% endif %}
+                        </div>
+                        <div class="stat-icon text-info">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-info bg-opacity-10 py-2">
+                    <a href="{% url 'filtrer_mots' %}?statut=attente" class="small text-info fw-medium">
+                        Voir mots en attente <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Derniers mots ajoutés -->
+        <div class="col-lg-8 mb-4">
+            <div class="dashboard-recent-card">
+                <div class="card-header bg-info text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Derniers mots ajoutés</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% for mot in derniers_mots %}
+                    <div class="word-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="arabic-word mb-1 dir-rtl">{{ mot.nom }}</h5>
+                                <p class="mb-0 text-muted small">
+                                    {% for definition in mot.definitions.all %}
+                                        {% if forloop.first %}
+                                            {{ definition.texte|truncatechars:80 }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </p>
+                                <div class="mt-2">
+                                    <span class="activity-label bg-light">
+                                        {{ mot.cree_par.nom_complet }}
+                                    </span>
+                                    <span class="date-label ms-2">
+                                        <i class="bi bi-calendar3 me-1"></i>{{ mot.date_creation|date:"d/m/Y" }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="{% url 'examiner_mot' mot.id %}" class="btn btn-sm btn-primary btn-examine">
+                                    <i class="bi bi-search me-1"></i>Examiner
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-4 text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-journal-plus text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                        <h6 class="text-muted">Aucun mot récent ajouté au dictionnaire</h6>
+                        <p class="small text-muted mb-0">Les nouveaux mots ajoutés apparaîtront ici</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if derniers_mots %}
+                <div class="card-footer bg-light text-center py-3">
+                    <a href="{% url 'filtrer_mots' %}" class="btn btn-outline-info">
+                        <i class="bi bi-list me-1"></i>Voir tous les mots
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Autres liens et actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="dashboard-recent-card mb-4">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Actions rapides</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="{% url 'gestion_utilisateurs' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: rgba(37, 99, 235, 0.1); border-radius: 8px;">
+                                <i class="bi bi-people-fill text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Gestion des utilisateurs</h6>
+                                <p class="text-muted small mb-0">Modifier les rôles et permissions</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'tableau_bord_moderateur' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                                <i class="bi bi-shield-check text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Tableau de modération</h6>
+                                <p class="text-muted small mb-0">Gérer les approbations de mots</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'filtrer_mots' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: rgba(245, 158, 11, 0.1); border-radius: 8px;">
+                                <i class="bi bi-funnel-fill text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Filtrer les mots</h6>
+                                <p class="text-muted small mb-0">Recherche avancée dans le dictionnaire</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'accueil' %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                                <i class="bi bi-box-arrow-left text-danger"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Retour au site public</h6>
+                                <p class="text-muted small mb-0">Accéder à l'interface principale</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Carte informative -->
+            <div class="dashboard-recent-card">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <i class="bi bi-lightbulb-fill text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Conseil du jour</h6>
+                            <p class="small mb-0">Vous pouvez cliquer sur "Examiner" pour consulter et valider les derniers mots ajoutés au dictionnaire.</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <p class="mb-3 small text-muted">Tableau de bord dernière mise à jour:</p>
+                        <p class="mb-0"><strong>
+                        {% if derniers_mots.0.date_creation %}
+                            {{ derniers_mots.0.date_creation|date:"d/m/Y à H:i" }}
+                        {% else %}
+                            Aujourd'hui
+                        {% endif %}
+                        </strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+    // Animations d'apparition progressive
+    document.addEventListener('DOMContentLoaded', function() {
+        const statCards = document.querySelectorAll('.dashboard-stat-card');
+        const featCards = document.querySelectorAll('.dashboard-recent-card');
+        
+        // Animer les cartes de statistiques
+        statCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+        
+        // Animer les cartes de fonctionnalités
+        featCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 300 + 100 * index);
+        });
+    });
+</script>
+{% endblock extra_js %}

@@ -50,7 +50,11 @@ urlpatterns = [
     # Vérification des badges
     path('verifier-badges/', views.verifier_badges, name='verifier_badges'),
 
-        path("mots-racines/", views.liste_mots_racines, name="mots_racines"),
+    path("mots-racines/", views.liste_mots_racines, name="mots_racines"),
+
+    path("formes/", views.afficher_formes_grammaticales, name="formes_grammaticales"),
+    path("api/formes/<int:mot_id>/", views.get_formes_grammaticales, name="api_formes_grammaticales"),
+    path("formes/<int:mot_id>/modifier/", views.modifier_statut_forme, name="modifier_statut_forme"),
 
             
         ]

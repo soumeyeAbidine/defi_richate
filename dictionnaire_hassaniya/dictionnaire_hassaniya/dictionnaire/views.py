@@ -10,6 +10,57 @@ from .models import Utilisateur, Mot, Definition, StatutValidation, Commentaire,
 
 
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from .models import Mot, FormeGrammaticale
+
+def afficher_formes_grammaticales(request):
+    mots = Mot.objects.all()  # Récupère tous les mots proposés
+
+    return render(request, "dics/variantes.html", {"mots": mots})
+
+def get_formes_grammaticales(request, mot_id):
+    """Retourne les formes grammaticales du mot sous forme JSON."""
+    mot = get_object_or_404(Mot, id=mot_id)
+    formes = FormeGrammaticale.objects.filter(mot=mot)
+
+    data = {
+        "mot": mot.nom,
+        "formes": [
+            {
+                "id": forme.id,
+                "texte": forme.texte,
+                "categorie": forme.get_categorie_display(),
+                "statut": forme.get_statut_display(),
+                "source": forme.source
+            }
+            for forme in formes
+        ]
+    }
+    return JsonResponse(data)
+
+def modifier_statut_forme(request, mot_id):
+    """Modifie le statut d'une forme grammaticale (valider/rejeter)."""
+    if request.method == "POST":
+        forme_id = request.POST.get("forme_id")
+        action = request.POST.get("action")
+
+        if forme_id and action:
+            forme = get_object_or_404(FormeGrammaticale, id=forme_id)
+            if action == "valider":
+                forme.statut = "valide"
+            elif action == "rejeter":
+                forme.statut = "rejete"
+            forme.save()
+
+        return redirect("formes_grammaticales")
+
+
+
+
+
+
+
 
 
 
